@@ -216,7 +216,7 @@ func RunProviders(logger *slog.Logger) {
 }
 
 func UpdateAttributes(cl *ClientDesc) error {
-	data, err := cl.client.PostLsSystem()
+	data, err := cl.client.GetSystem()
 	if err != nil {
 		return err
 	}

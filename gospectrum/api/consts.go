@@ -8,12 +8,17 @@ import (
 type SpectrumAPIPath string
 
 const (
-	SpectrumAPIPrefix                        = "/rest"
-	SpectrumAPIAuth          SpectrumAPIPath = SpectrumAPIPrefix + "/auth"
-	SpectrumAPILsEventLog    SpectrumAPIPath = SpectrumAPIPrefix + "/lseventlog"
-	SpectrumAPILsFcmap       SpectrumAPIPath = SpectrumAPIPrefix + "/lsfcmap"
-	SpectrumAPILsSystem      SpectrumAPIPath = SpectrumAPIPrefix + "/lssystem"
-	SpectrumAPILsSystemStats SpectrumAPIPath = SpectrumAPIPrefix + "/lssystemstats"
+	SpectrumAPIPrefix                              = "/rest"
+	SpectrumAPIAuth                SpectrumAPIPath = SpectrumAPIPrefix + "/auth"
+	SpectrumAPILsEventLog          SpectrumAPIPath = SpectrumAPIPrefix + "/lseventlog"
+	SpectrumAPILsFcmap             SpectrumAPIPath = SpectrumAPIPrefix + "/lsfcmap"
+	SpectrumAPILsSystem            SpectrumAPIPath = SpectrumAPIPrefix + "/lssystem"
+	SpectrumAPILsSystemStats       SpectrumAPIPath = SpectrumAPIPrefix + "/lssystemstats"
+	SpectrumAPILsEnclosureCanister SpectrumAPIPath = SpectrumAPIPrefix + "/lsenclosurecanister"
+	SpectrumAPILsMdisk             SpectrumAPIPath = SpectrumAPIPrefix + "/lsmdisk"
+	SpectrumAPILsArray             SpectrumAPIPath = SpectrumAPIPrefix + "/lsarray"
+	SpectrumAPILsDrive             SpectrumAPIPath = SpectrumAPIPrefix + "/lsdrive"
+	SpectrumAPILsHost              SpectrumAPIPath = SpectrumAPIPrefix + "/lshost"
 )
 
 func (_api SpectrumAPIPath) NewRequest(endpoint string, body []byte) (*http.Request, error) {

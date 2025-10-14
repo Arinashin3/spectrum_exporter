@@ -3,21 +3,22 @@ package gospectrum
 import (
 	"encoding/json"
 	"spectrum_exporter/gospectrum/api"
+	"spectrum_exporter/gospectrum/types"
 	"strings"
 )
 
-type LsSystemStatsInst struct {
-	StatName     string `json:"stat_name"`
-	StatCurrent  string `json:"stat_current,omitempty"`
-	StatPeak     string `json:"stat_peak,omitempty"`
-	StatPeakTime string `json:"stat_peak_time,omitempty"`
+type SystemStatsInstance struct {
+	StatName     string          `json:"stat_name"`
+	StatCurrent  string          `json:"stat_current,omitempty"`
+	StatPeak     string          `json:"stat_peak,omitempty"`
+	StatPeakTime types.Timestamp `json:"stat_peak_time,omitempty"`
 }
 
-type lsSystemStatsOptions struct {
+type SystemStatsOptions struct {
 	Filtervalue string `json:"filtervalue"`
 }
 
-func (_c *SpectrumClient) PostLsSystemStats(filterValues []string) ([]*LsSystemStatsInst, error) {
+func (_c *SpectrumClient) GetSystemStats(filterValues []string) ([]*SystemStatsInstance, error) {
 	// Try Login
 	err := _c.login()
 	if err != nil {
@@ -27,7 +28,7 @@ func (_c *SpectrumClient) PostLsSystemStats(filterValues []string) ([]*LsSystemS
 	// Parse Body
 	var reqBody []byte
 	if len(filterValues) != 0 {
-		var opts lsSystemStatsOptions
+		var opts SystemStatsOptions
 		opts.Filtervalue = strings.Join(filterValues, ":")
 		reqBody, err = json.Marshal(opts)
 		if err != nil {
@@ -47,8 +48,11 @@ func (_c *SpectrumClient) PostLsSystemStats(filterValues []string) ([]*LsSystemS
 	if err != nil {
 		return nil, err
 	}
-	var data []*LsSystemStatsInst
+	var data []*SystemStatsInstance
 	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
 
 	return data, err
 }

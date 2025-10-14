@@ -23,6 +23,11 @@ type SpectrumProviders struct {
 	Systemstats *ProviderDefaults `yaml: "systemstats,omitempty"`
 	Eventlog    *ProviderDefaults `yaml: "event,omitempty"`
 	Flashcopy   *ProviderDefaults `yaml: "flashcopy,omitempty"`
+	Canister    *ProviderDefaults `yaml: "canister,omitempty"`
+	Mdisk       *ProviderDefaults `yaml: "mdisk,omitempty"`
+	Array       *ProviderDefaults `yaml: "array,omitempty"`
+	Drive       *ProviderDefaults `yaml: "drive,omitempty"`
+	Host        *ProviderDefaults `yaml: "host,omitempty"`
 }
 
 func NewConfiguration() *SpectrumConfig {
@@ -60,6 +65,11 @@ func NewConfiguration() *SpectrumConfig {
 			Systemstats: &ProviderDefaults{},
 			Eventlog:    &ProviderDefaults{},
 			Flashcopy:   &ProviderDefaults{},
+			Canister:    &ProviderDefaults{},
+			Mdisk:       &ProviderDefaults{},
+			Array:       &ProviderDefaults{},
+			Drive:       &ProviderDefaults{},
+			Host:        &ProviderDefaults{},
 		},
 	}
 }

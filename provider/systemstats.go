@@ -59,7 +59,7 @@ var lsSystemStatsMetricDescs = []*MetricDescriptor{
 	},
 	{
 		Key:      "compression_cpu_pc",
-		Name:     "spectrum_system_stats_compression",
+		Name:     "spectrum_system_stats_compression_cpu",
 		Desc:     "Information about the system",
 		Unit:     "%",
 		TypeName: "gauge",
@@ -271,7 +271,7 @@ func (pv *systemStatsProvider) Run(logger *slog.Logger) {
 
 		// Request Data
 		c := pv.clientDesc.client
-		data, err := c.PostLsSystemStats(nil)
+		data, err := c.GetSystemStats(nil)
 		if err != nil {
 			logger.Error("Failed to post system stats", "error", err)
 		}

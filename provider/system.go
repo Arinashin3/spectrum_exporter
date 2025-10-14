@@ -115,7 +115,7 @@ func (pv *systemProvider) Run(logger *slog.Logger) {
 
 		// Request Data
 		c := pv.clientDesc.client
-		data, err := c.PostLsSystem()
+		data, err := c.GetSystem()
 		if err != nil {
 			logger.Error("Failed to post system info", "err", err)
 			return nil

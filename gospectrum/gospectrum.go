@@ -91,6 +91,9 @@ func (_c *SpectrumClient) send(req *http.Request) ([]byte, error) {
 
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
+	if body == nil {
+		return nil, errors.New(resp.Status)
+	}
 	return body, nil
 
 }
@@ -108,13 +111,4 @@ func (_c *SpectrumClient) checkHttpCode(code int) error {
 		return errors.New("where a Spectrum Virtualize command error is forwarded from the RESTful API")
 	}
 	return nil
-}
-
-type SpectrumTimestamp string
-
-const TimeLayout = "060102150405"
-
-func (_t SpectrumTimestamp) Time() time.Time {
-	t, _ := time.ParseInLocation(TimeLayout, string(_t), time.Local)
-	return t
 }

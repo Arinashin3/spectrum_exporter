@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"spectrum_exporter/config"
 	"spectrum_exporter/gospectrum"
+	"spectrum_exporter/gospectrum/types"
 	"time"
 
 	"go.opentelemetry.io/otel/log"
@@ -61,10 +62,11 @@ func (pv *eventlogProvider) Run(logger *slog.Logger) {
 	for {
 		pvlogger := lp.Logger(pv.moduleName, log.WithInstrumentationAttributes(pv.clientDesc.hostLabels...))
 
-		opts.AddFilterValue("last_timestamp>=" + ctime.Format(gospectrum.TimeLayout))
+		opts.AddFilterValue("last_timestamp>=" + ctime.Format(types.TimeLayout))
 
-		data, err := cl.PostLsEventLog(opts)
+		data, err := cl.GetEventLog(opts)
 		if err != nil {
+			time.Sleep(pv.interval)
 			continue
 		}
 

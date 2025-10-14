@@ -3,9 +3,10 @@ package gospectrum
 import (
 	"encoding/json"
 	"spectrum_exporter/gospectrum/api"
+	"spectrum_exporter/gospectrum/types"
 )
 
-type LsFcMapInst struct {
+type FlashCopyMapInstance struct {
 	Id              string                `json:"id,omitempty"`
 	Name            string                `json:"name,omitempty"`
 	SourceVdiskId   string                `json:"source_vdisk_id,omitempty"`
@@ -14,45 +15,19 @@ type LsFcMapInst struct {
 	TargetVdiskName string                `json:"target_vdisk_name,omitempty"`
 	GroupId         string                `json:"group_id,omitempty"`
 	GroupName       string                `json:"group_name,omitempty"`
-	Status          FlashCopyStatusString `json:"status,omitempty"`
-	Progress        string                `json:"progress,omitempty"`
-	CopyRate        string                `json:"copy_rate,omitempty"`
-	CleanProgress   string                `json:"clean_progress,omitempty"`
-	Incremental     string                `json:"incremental,omitempty"`
+	Status          types.FlashCopyStatus `json:"status,omitempty"`
+	Progress        types.Number          `json:"progress,omitempty"`
+	CopyRate        types.Number          `json:"copy_rate,omitempty"`
+	CleanProgress   types.Number          `json:"clean_progress,omitempty"`
+	Incremental     types.Bool            `json:"incremental,omitempty"`
 	PartnerFCId     string                `json:"partner_FC_id,omitempty"`
 	PartnerFCName   string                `json:"partner_FC_name,omitempty"`
-	Restoring       string                `json:"restoring,omitempty"`
-	StartTime       string                `json:"start_time,omitempty"`
-	RcControlled    string                `json:"rc_controlled,omitempty"`
+	Restoring       types.Bool            `json:"restoring,omitempty"`
+	StartTime       types.Timestamp       `json:"start_time,omitempty"`
+	RcControlled    types.Bool            `json:"rc_controlled,omitempty"`
 }
 
-type FlashCopyStatusString string
-
-const (
-	FlashCopyStatusIdleOrCopied FlashCopyStatusString = "idle_or_copied"
-	FlashCopyStatusPreparing    FlashCopyStatusString = "preparing"
-	FlashCopyStatusPrepared     FlashCopyStatusString = "prepared"
-	FlashCopyStatusCopying      FlashCopyStatusString = "copying"
-	FlashCopyStatusStopped      FlashCopyStatusString = "stopped"
-	FlashCopyStatusStopping     FlashCopyStatusString = "stopping"
-	FlashCopyStatusSuspended    FlashCopyStatusString = "suspended"
-)
-
-var FlashCopyStatusMap = map[FlashCopyStatusString]int{
-	FlashCopyStatusIdleOrCopied: 0,
-	FlashCopyStatusPreparing:    1,
-	FlashCopyStatusPrepared:     2,
-	FlashCopyStatusCopying:      3,
-	FlashCopyStatusStopped:      4,
-	FlashCopyStatusStopping:     5,
-	FlashCopyStatusSuspended:    6,
-}
-
-func (_status FlashCopyStatusString) Enum() int {
-	return FlashCopyStatusMap[FlashCopyStatusIdleOrCopied]
-}
-
-func (_c *SpectrumClient) PostLsFcMap() ([]*LsFcMapInst, error) {
+func (_c *SpectrumClient) GetFlashCopyMap() ([]FlashCopyMapInstance, error) {
 	// Try Login
 	err := _c.login()
 	if err != nil {
@@ -68,8 +43,14 @@ func (_c *SpectrumClient) PostLsFcMap() ([]*LsFcMapInst, error) {
 	if err != nil {
 		return nil, err
 	}
-	var data []*LsFcMapInst
+	if body == nil {
+		return nil, nil
+	}
+	var data []FlashCopyMapInstance
 	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, err
+	}
 
 	return data, err
 }
