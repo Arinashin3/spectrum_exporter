@@ -19,15 +19,19 @@ type SpectrumConfig struct {
 }
 
 type SpectrumProviders struct {
-	System      *ProviderDefaults `yaml: "system,omitempty"`
-	Systemstats *ProviderDefaults `yaml: "systemstats,omitempty"`
-	Eventlog    *ProviderDefaults `yaml: "event,omitempty"`
-	Flashcopy   *ProviderDefaults `yaml: "flashcopy,omitempty"`
-	Canister    *ProviderDefaults `yaml: "canister,omitempty"`
-	Mdisk       *ProviderDefaults `yaml: "mdisk,omitempty"`
-	Array       *ProviderDefaults `yaml: "array,omitempty"`
-	Drive       *ProviderDefaults `yaml: "drive,omitempty"`
-	Host        *ProviderDefaults `yaml: "host,omitempty"`
+	System       *ProviderDefaults `yaml: "system,omitempty"`
+	Systemstats  *ProviderDefaults `yaml: "systemstats,omitempty"`
+	Eventlog     *ProviderDefaults `yaml: "event,omitempty"`
+	Flashcopy    *ProviderDefaults `yaml: "flashcopy,omitempty"`
+	Enclosure    *ProviderDefaults `yaml: "enclosure,omitempty"`
+	Canister     *ProviderDefaults `yaml: "canister,omitempty"`
+	Mdisk        *ProviderDefaults `yaml: "mdisk,omitempty"`
+	Vdisk        *ProviderDefaults `yaml: "vdisk,omitempty"`
+	Array        *ProviderDefaults `yaml: "array,omitempty"`
+	Drive        *ProviderDefaults `yaml: "drive,omitempty"`
+	Host         *ProviderDefaults `yaml: "host,omitempty"`
+	Node         *ProviderDefaults `yaml: "node,omitempty"`
+	Hostvdiskmap *ProviderDefaults `yaml: "hostvdiskmap,omitempty"`
 }
 
 func NewConfiguration() *SpectrumConfig {
@@ -61,15 +65,19 @@ func NewConfiguration() *SpectrumConfig {
 		Clients: nil,
 		Auths:   nil,
 		Providers: &SpectrumProviders{
-			System:      &ProviderDefaults{},
-			Systemstats: &ProviderDefaults{},
-			Eventlog:    &ProviderDefaults{},
-			Flashcopy:   &ProviderDefaults{},
-			Canister:    &ProviderDefaults{},
-			Mdisk:       &ProviderDefaults{},
-			Array:       &ProviderDefaults{},
-			Drive:       &ProviderDefaults{},
-			Host:        &ProviderDefaults{},
+			System:       &ProviderDefaults{},
+			Systemstats:  &ProviderDefaults{},
+			Eventlog:     &ProviderDefaults{},
+			Flashcopy:    &ProviderDefaults{},
+			Enclosure:    &ProviderDefaults{},
+			Canister:     &ProviderDefaults{},
+			Mdisk:        &ProviderDefaults{},
+			Array:        &ProviderDefaults{},
+			Drive:        &ProviderDefaults{},
+			Host:         &ProviderDefaults{},
+			Node:         &ProviderDefaults{},
+			Hostvdiskmap: &ProviderDefaults{},
+			Vdisk:        &ProviderDefaults{},
 		},
 	}
 }

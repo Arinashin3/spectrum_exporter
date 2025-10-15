@@ -115,9 +115,12 @@ func (pv *fcmapProvider) Run(logger *slog.Logger) {
 
 		// Request Data
 		c := pv.clientDesc.client
+		if !c.HealthCheck() {
+			return nil
+		}
 		data, err := c.GetFlashCopyMap()
 		if err != nil {
-			logger.Error("Failed to post fcmap info", "err", err)
+			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 			return nil
 		}
 		if data == nil {

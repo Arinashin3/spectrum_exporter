@@ -35,24 +35,29 @@ server:
 ## auth = 사용할 인증 정보(auths.name)
 ## Insecure = TLS 설정
 clients:
-  - endpoint: 'https://10.77.77.170:7443'
-    auth: 'appez'
-    insecure: true
-    labels:
-      env: "production"
-      host_group: "IBM"
-  #
   - endpoint: 'https://10.77.77.140:7443'
-    auth: 'appez'
+    auth: 'prom'
     insecure: true
     labels:
       env: "production"
       host_group: "IBM"
 
+  - endpoint: 'https://10.77.77.170:7443'
+    auth: 'prom'
+    insecure: true
+    labels:
+      env: "production"
+      host_group: "IBM"
+  #
+
+
 auths:
-  - name: 'appez'
-    user: 'appez'
-    password: 'appez@2024'
+  - name: 'prom'
+    user: 'prometheus'
+    password: 'P@ssw0rd1!'
+  - name: 'admin'
+    user: 'superuser'
+    password: 'Passw0rd1!'
 
 # Providers Sections
 # default :

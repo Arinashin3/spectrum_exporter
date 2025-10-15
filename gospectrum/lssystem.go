@@ -48,18 +48,12 @@ type SystemInstance struct {
 }
 
 func (_c *SpectrumClient) GetSystem() (*SystemInstance, error) {
-	// Try Login
-	err := _c.login()
-	if err != nil {
-		return nil, err
-	}
 
 	var data *SystemInstance
-	req, err := api.SpectrumAPILsSystem.NewRequest(_c.endpoint, nil)
+	req, err := _c.newRequest(api.SpectrumAPILsSystem, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Auth-Token", _c.token)
 	body, err := _c.send(req)
 	if err != nil {
 		return nil, err

@@ -23,17 +23,10 @@ type MDiskInstance struct {
 }
 
 func (_c *SpectrumClient) GetMDisk() ([]*MDiskInstance, error) {
-	// Try Login
-	err := _c.login()
+	req, err := _c.newRequest(api.SpectrumAPILsMDisk, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := api.SpectrumAPILsMdisk.NewRequest(_c.endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Auth-Token", _c.token)
 	body, err := _c.send(req)
 	if err != nil {
 		return nil, err

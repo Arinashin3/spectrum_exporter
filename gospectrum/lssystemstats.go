@@ -19,14 +19,10 @@ type SystemStatsOptions struct {
 }
 
 func (_c *SpectrumClient) GetSystemStats(filterValues []string) ([]*SystemStatsInstance, error) {
-	// Try Login
-	err := _c.login()
-	if err != nil {
-		return nil, err
-	}
 
 	// Parse Body
 	var reqBody []byte
+	var err error
 	if len(filterValues) != 0 {
 		var opts SystemStatsOptions
 		opts.Filtervalue = strings.Join(filterValues, ":")
@@ -37,11 +33,10 @@ func (_c *SpectrumClient) GetSystemStats(filterValues []string) ([]*SystemStatsI
 	}
 
 	// Create Request
-	req, err := api.SpectrumAPILsSystemStats.NewRequest(_c.endpoint, reqBody)
+	req, err := _c.newRequest(api.SpectrumAPILsSystemStats, reqBody)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Auth-Token", _c.token)
 
 	// Send
 	body, err := _c.send(req)

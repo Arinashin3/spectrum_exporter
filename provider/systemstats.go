@@ -271,9 +271,13 @@ func (pv *systemStatsProvider) Run(logger *slog.Logger) {
 
 		// Request Data
 		c := pv.clientDesc.client
+		if !c.HealthCheck() {
+			return nil
+		}
 		data, err := c.GetSystemStats(nil)
 		if err != nil {
-			logger.Error("Failed to post system stats", "error", err)
+			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
+			return nil
 		}
 		if data == nil {
 			logger.Warn("data is nil", "provider", pv.moduleName, "endpoint", pv.clientDesc.endpoint)

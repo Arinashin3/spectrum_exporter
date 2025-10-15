@@ -1,12 +1,11 @@
 package gospectrum
 
 import (
+	"bytes"
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
-	"net/http/cookiejar"
 	"spectrum_exporter/gospectrum/api"
 	"time"
 )
@@ -18,6 +17,7 @@ type SpectrumClient struct {
 	token      string
 	tryLoginAt time.Time
 	client     *http.Client
+	success    bool
 }
 
 func NewClient(endpoint string, username string, password string, insecure bool) *SpectrumClient {
@@ -34,51 +34,13 @@ func NewClient(endpoint string, username string, password string, insecure bool)
 			},
 		},
 	}
-
 }
 
-func (_c *SpectrumClient) login() error {
-	defer func() {
-		_c.tryLoginAt = time.Now()
-	}()
-	// 토큰 존재 여부 확인
-	if _c.token != "" {
-		return nil
-	}
-	// 실패했을 시, 최소 1분 후 로그인 재시도
-	if time.Since(_c.tryLoginAt) < 1*time.Minute {
-		return nil
-	}
-	// 요청 생성
-	req, err := api.SpectrumAPIAuth.NewRequest(_c.endpoint, nil)
-	if err != nil {
-		return err
-	}
-
-	// 헤더 추가
-	req.Header.Add("X-Auth-Username", _c.username)
-	req.Header.Add("X-Auth-Password", _c.password)
-	_c.client.Jar, _ = cookiejar.New(nil)
-
-	// 전송
-	body, err := _c.send(req)
-	if err != nil {
-		return err
-	}
-
-	// 토큰 갱신
-	var loginResp struct {
-		Token string `json:"token"`
-	}
-	err = json.Unmarshal(body, &loginResp)
-	if err != nil {
-		return err
-	}
-	_c.token = loginResp.Token
-
-	return nil
-}
 func (_c *SpectrumClient) send(req *http.Request) ([]byte, error) {
+	if _c.token == "" {
+		return nil, errors.New("no token provided")
+	}
+	req.Header.Add("X-Auth-Token", _c.token)
 	resp, err := _c.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -91,9 +53,6 @@ func (_c *SpectrumClient) send(req *http.Request) ([]byte, error) {
 
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
-	if body == nil {
-		return nil, errors.New(resp.Status)
-	}
 	return body, nil
 
 }
@@ -111,4 +70,27 @@ func (_c *SpectrumClient) checkHttpCode(code int) error {
 		return errors.New("where a Spectrum Virtualize command error is forwarded from the RESTful API")
 	}
 	return nil
+}
+
+func (_c *SpectrumClient) HealthCheck() bool {
+	return _c.success
+}
+
+func (_c *SpectrumClient) newRequest(path api.SpectrumAPIPath, data []byte) (*http.Request, error) {
+	req, err := http.NewRequest("POST", _c.endpoint+string(path), bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+	req.URL, err = req.URL.Parse(_c.endpoint + string(path))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	if path == api.SpectrumAPIAuth {
+		req.Header.Add("X-Auth-Username", _c.username)
+		req.Header.Add("X-Auth-Password", _c.password)
+	} else {
+		req.Header.Add("X-Auth-Token", _c.token)
+	}
+	return req, nil
 }

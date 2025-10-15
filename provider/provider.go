@@ -216,17 +216,20 @@ func RunProviders(logger *slog.Logger) {
 }
 
 func UpdateAttributes(cl *ClientDesc) error {
+	var tmp []attribute.KeyValue
+	tmp = cl.customLabels
+	tmp = append(tmp, attribute.String("instance", cl.endpoint))
+	cl.hostLabels = tmp
+	err := cl.client.Login()
+	if err != nil {
+		return err
+	}
 	data, err := cl.client.GetSystem()
 	if err != nil {
 		return err
 	}
-	if data == nil {
-		return nil
-	}
-	var tmp []attribute.KeyValue
-	tmp = cl.customLabels
+
 	tmp = append(tmp, attribute.String("host.name", data.Name))
-	tmp = append(tmp, attribute.String("instance", data.Id))
 	cl.hostLabels = tmp
 
 	return nil

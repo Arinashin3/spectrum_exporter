@@ -60,6 +60,10 @@ func (pv *eventlogProvider) Run(logger *slog.Logger) {
 	ctime := time.Now().Add(-1 * time.Hour).UTC()
 
 	for {
+		if !cl.HealthCheck() {
+			time.Sleep(pv.interval)
+			continue
+		}
 		pvlogger := lp.Logger(pv.moduleName, log.WithInstrumentationAttributes(pv.clientDesc.hostLabels...))
 
 		opts.AddFilterValue("last_timestamp>=" + ctime.Format(types.TimeLayout))

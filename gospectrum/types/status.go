@@ -10,44 +10,39 @@ const (
 	StatusDegradedPaths Status = "degraded_paths"
 	StatusDegradedPorts Status = "degraded_ports"
 	StatusExcluded      Status = "excluded"
+	StatusService       Status = "service"
+	StatusFlushing      Status = "flushing"
+	StatusPending       Status = "pending"
+	StatusAdding        Status = "adding"
+	StatusDeleting      Status = "deleting"
+	StatusSpare         Status = "spare"
+	StatusOnlineSpare   Status = "online_spare"
+	StatusSyncing       Status = "syncing"
+	StatusInitializing  Status = "initializing"
+	StatusExpanding     Status = "expanding"
 )
 
 var StatusEnum = map[Status]float64{
 	StatusOffline:       0,
 	StatusOnline:        1,
 	StatusDegraded:      2,
-	StatusDegradedPaths: 2.1,
-	StatusDegradedPorts: 2.2,
-	StatusExcluded:      3,
+	StatusDegradedPaths: 3,
+	StatusDegradedPorts: 4,
+	StatusExcluded:      5,
+	StatusService:       6,
+	StatusFlushing:      7,
+	StatusPending:       8,
+	StatusAdding:        9,
+	StatusDeleting:      10,
+	StatusSpare:         11,
+	StatusOnlineSpare:   12,
+	StatusSyncing:       13,
+	StatusInitializing:  14,
+	StatusExpanding:     15,
 }
 
 func (_string Status) Enum() float64 {
 	return StatusEnum[_string]
-}
-
-// RaidStatus
-type RaidStatus string
-
-const (
-	RaidStatusOffline      RaidStatus = "offline"
-	RaidStatusOnline       RaidStatus = "online"
-	RaidStatusDegraded     RaidStatus = "degraded"
-	RaidStatusSyncing      RaidStatus = "syncing"
-	RaidStatusInitializing RaidStatus = "initializing"
-	RaidStatusExpanding    RaidStatus = "expanding"
-)
-
-var RaidStatusEnum = map[RaidStatus]float64{
-	RaidStatusOffline:      0,
-	RaidStatusOnline:       1,
-	RaidStatusDegraded:     2,
-	RaidStatusSyncing:      3,
-	RaidStatusInitializing: 4,
-	RaidStatusExpanding:    5,
-}
-
-func (_status RaidStatus) Enum() float64 {
-	return RaidStatusEnum[_status]
 }
 
 // FlashCopyStatus

@@ -11,14 +11,18 @@ const (
 	SpectrumAPIPrefix                              = "/rest"
 	SpectrumAPIAuth                SpectrumAPIPath = SpectrumAPIPrefix + "/auth"
 	SpectrumAPILsEventLog          SpectrumAPIPath = SpectrumAPIPrefix + "/lseventlog"
-	SpectrumAPILsFcmap             SpectrumAPIPath = SpectrumAPIPrefix + "/lsfcmap"
+	SpectrumAPILsFcMap             SpectrumAPIPath = SpectrumAPIPrefix + "/lsfcmap"
 	SpectrumAPILsSystem            SpectrumAPIPath = SpectrumAPIPrefix + "/lssystem"
 	SpectrumAPILsSystemStats       SpectrumAPIPath = SpectrumAPIPrefix + "/lssystemstats"
+	SpectrumAPILsEnclosure         SpectrumAPIPath = SpectrumAPIPrefix + "/lsenclosure"
 	SpectrumAPILsEnclosureCanister SpectrumAPIPath = SpectrumAPIPrefix + "/lsenclosurecanister"
-	SpectrumAPILsMdisk             SpectrumAPIPath = SpectrumAPIPrefix + "/lsmdisk"
+	SpectrumAPILsNodeCanister      SpectrumAPIPath = SpectrumAPIPrefix + "/lsnodecanister"
+	SpectrumAPILsMDisk             SpectrumAPIPath = SpectrumAPIPrefix + "/lsmdisk"
+	SpectrumAPILsVDisk             SpectrumAPIPath = SpectrumAPIPrefix + "/lsvdisk"
 	SpectrumAPILsArray             SpectrumAPIPath = SpectrumAPIPrefix + "/lsarray"
 	SpectrumAPILsDrive             SpectrumAPIPath = SpectrumAPIPrefix + "/lsdrive"
 	SpectrumAPILsHost              SpectrumAPIPath = SpectrumAPIPrefix + "/lshost"
+	SpectrumAPILsHostVDiskMap      SpectrumAPIPath = SpectrumAPIPrefix + "/lshostvdiskmap"
 )
 
 func (_api SpectrumAPIPath) NewRequest(endpoint string, body []byte) (*http.Request, error) {
@@ -31,5 +35,6 @@ func (_api SpectrumAPIPath) NewRequest(endpoint string, body []byte) (*http.Requ
 		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
+
 	return req, nil
 }

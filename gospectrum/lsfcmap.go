@@ -27,18 +27,11 @@ type FlashCopyMapInstance struct {
 	RcControlled    types.Bool            `json:"rc_controlled,omitempty"`
 }
 
-func (_c *SpectrumClient) GetFlashCopyMap() ([]FlashCopyMapInstance, error) {
-	// Try Login
-	err := _c.login()
+func (_c *SpectrumClient) GetFlashCopyMap() ([]*FlashCopyMapInstance, error) {
+	req, err := _c.newRequest(api.SpectrumAPILsFcMap, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := api.SpectrumAPILsFcmap.NewRequest(_c.endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Auth-Token", _c.token)
 	body, err := _c.send(req)
 	if err != nil {
 		return nil, err
@@ -46,7 +39,7 @@ func (_c *SpectrumClient) GetFlashCopyMap() ([]FlashCopyMapInstance, error) {
 	if body == nil {
 		return nil, nil
 	}
-	var data []FlashCopyMapInstance
+	var data []*FlashCopyMapInstance
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return nil, err

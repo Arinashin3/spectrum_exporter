@@ -87,9 +87,12 @@ func (pv *mdiskProvider) Run(logger *slog.Logger) {
 
 		// Request Data
 		c := pv.clientDesc.client
+		if !c.HealthCheck() {
+			return nil
+		}
 		data, err := c.GetMDisk()
 		if err != nil {
-			logger.Error("Failed to post mdisk info", "err", err)
+			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 			return nil
 		}
 		if data == nil {

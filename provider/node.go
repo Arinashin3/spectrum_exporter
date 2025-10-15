@@ -11,7 +11,7 @@ import (
 	sdkMetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
-type hostProvider struct {
+type nodeProvider struct {
 	moduleName    string
 	interval      time.Duration
 	meterProvider *sdkMetric.MeterProvider
@@ -19,16 +19,16 @@ type hostProvider struct {
 }
 
 func init() {
-	moduleName := "host"
-	registProvider(moduleName, &hostProvider{moduleName: moduleName})
+	moduleName := "node"
+	registProvider(moduleName, &nodeProvider{moduleName: moduleName})
 }
 
-func (pv *hostProvider) IsDefaultEnabled() bool {
+func (pv *nodeProvider) IsDefaultEnabled() bool {
 	return true
 }
 
-func (pv *hostProvider) NewProvider(cfg *config.SpectrumConfig, moduleName string, cl *ClientDesc) Provider {
-	pvConf := cfg.Providers.Host
+func (pv *nodeProvider) NewProvider(cfg *config.SpectrumConfig, moduleName string, cl *ClientDesc) Provider {
+	pvConf := cfg.Providers.Node
 	enabled := pvConf.GetEnabled(pv.IsDefaultEnabled())
 	interval := pvConf.GetInterval()
 
@@ -39,7 +39,7 @@ func (pv *hostProvider) NewProvider(cfg *config.SpectrumConfig, moduleName strin
 		return nil
 	}
 	mp := NewMeterProvider(serviceName, interval, MetricExporter)
-	return &hostProvider{
+	return &nodeProvider{
 		moduleName:    moduleName,
 		interval:      interval,
 		meterProvider: mp,
@@ -47,42 +47,35 @@ func (pv *hostProvider) NewProvider(cfg *config.SpectrumConfig, moduleName strin
 	}
 }
 
-var HostMetricDescs = []*MetricDescriptor{
+var NodeMetricDescs = []*MetricDescriptor{
 	{
 		Key:      "status",
-		Name:     "spectrum_host_status",
-		Desc:     "Information about the host",
+		Name:     "spectrum_node_status",
+		Desc:     "Information about the node",
 		Unit:     "",
 		TypeName: "gauge",
 	},
 	{
-		Key:      "port_count",
-		Name:     "spectrum_host_port_count",
-		Desc:     "Information about the host",
-		Unit:     "",
-		TypeName: "gauge",
-	},
-	{
-		Key:      "iogrp_count",
-		Name:     "spectrum_host_iogrp_count",
-		Desc:     "Information about the host",
+		Key:      "config",
+		Name:     "spectrum_node_config",
+		Desc:     "Information about the node",
 		Unit:     "",
 		TypeName: "gauge",
 	},
 }
 
-func (pv *hostProvider) Run(logger *slog.Logger) {
+func (pv *nodeProvider) Run(logger *slog.Logger) {
 	logger.Info("Starting provider", "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 	meter := pv.meterProvider.Meter(pv.moduleName)
 
 	// Register Metrics...
 	var observableMap map[string]metric.Float64Observable
-	observableMap = CreateMapMetricDescriptor(meter, HostMetricDescs, logger)
+	observableMap = CreateMapMetricDescriptor(meter, NodeMetricDescs, logger)
 
 	// Register Metrics for Observables...
-	var observableHost []metric.Observable
+	var observableNode []metric.Observable
 	for _, observable := range observableMap {
-		observableHost = append(observableHost, observable)
+		observableNode = append(observableNode, observable)
 	}
 
 	// ==============================
@@ -97,7 +90,7 @@ func (pv *hostProvider) Run(logger *slog.Logger) {
 		if !c.HealthCheck() {
 			return nil
 		}
-		data, err := c.GetHost()
+		data, err := c.GetNodeCanister()
 		if err != nil {
 			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 			return nil
@@ -108,18 +101,25 @@ func (pv *hostProvider) Run(logger *slog.Logger) {
 		}
 
 		for _, v := range data {
-			// Host Attributes...
+			// Node Attributes...
 			additionalAttrs := metric.WithAttributes(
-				attribute.String("target.id", v.Id),
-				attribute.String("target.name", v.Name),
-				attribute.String("protocol", v.Protocol),
+				attribute.String("enclosure.id", v.EnclosureId),
+				attribute.String("canister.id", v.CanisterId),
+				attribute.String("node.id", v.Id),
+				attribute.String("node.name", v.Name),
+				attribute.String("node.wwnn", v.WWNN),
 			)
+			var vconfig float64
+			if v.ConfigNode.Bool() {
+				vconfig = 1
+			} else {
+				vconfig = 0
+			}
 			observer.ObserveFloat64(observableMap["status"], v.Status.Enum(), clientAttrs, additionalAttrs)
-			observer.ObserveFloat64(observableMap["port_count"], v.PortCount.Float(), clientAttrs, additionalAttrs)
-			observer.ObserveFloat64(observableMap["iogrp_count"], v.IogrpCount.Float(), clientAttrs, additionalAttrs)
+			observer.ObserveFloat64(observableMap["config"], vconfig, clientAttrs, additionalAttrs)
 		}
 
 		return nil
-	}, observableHost...)
+	}, observableNode...)
 
 }

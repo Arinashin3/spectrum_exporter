@@ -17,17 +17,10 @@ type HostInstance struct {
 }
 
 func (_c *SpectrumClient) GetHost() ([]*HostInstance, error) {
-	// Try Login
-	err := _c.login()
+	req, err := _c.newRequest(api.SpectrumAPILsHost, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := api.SpectrumAPILsHost.NewRequest(_c.endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Auth-Token", _c.token)
 	body, err := _c.send(req)
 	if err != nil {
 		return nil, err

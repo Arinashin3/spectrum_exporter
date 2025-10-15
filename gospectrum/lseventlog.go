@@ -66,21 +66,15 @@ func (_opts *EventLogOptions) SetFixed(b bool) {
 }
 
 func (_c *SpectrumClient) GetEventLog(opts *EventLogOptions) ([]*EventLogInstance, error) {
-	// Try Login
-	err := _c.login()
-	if err != nil {
-		return nil, err
-	}
 	reqBody, err := json.Marshal(opts)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := api.SpectrumAPILsEventLog.NewRequest(_c.endpoint, reqBody)
+	req, err := _c.newRequest(api.SpectrumAPILsEventLog, reqBody)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("X-Auth-Token", _c.token)
 	body, err := _c.send(req)
 	if err != nil {
 		return nil, err

@@ -87,9 +87,12 @@ func (pv *driveProvider) Run(logger *slog.Logger) {
 
 		// Request Data
 		c := pv.clientDesc.client
+		if !c.HealthCheck() {
+			return nil
+		}
 		data, err := c.GetDrive()
 		if err != nil {
-			logger.Error("Failed to post drive info", "err", err)
+			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 			return nil
 		}
 		if data == nil {

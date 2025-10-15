@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 	"spectrum_exporter/config"
-	"spectrum_exporter/gospectrum/types"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 	sdkMetric "go.opentelemetry.io/otel/sdk/metric"
 )
@@ -78,17 +78,14 @@ func (pv *enclosureCanisterProvider) Run(logger *slog.Logger) {
 		// Client Attributes
 		clientAttrs := metric.WithAttributes(pv.clientDesc.hostLabels...)
 
-		// Status Labels... (online, offline, degraded)
-		var StatusCount = make(map[string]float64)
-		for k, _ := range types.StatusMap {
-			StatusCount[string(k)] = 0
-		}
-
 		// Request Data
 		c := pv.clientDesc.client
+		if !c.HealthCheck() {
+			return nil
+		}
 		data, err := c.GetEnclosureCanister()
 		if err != nil {
-			logger.Error("Failed to post enclosureCanister info", "err", err)
+			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 			return nil
 		}
 		if data == nil {
@@ -97,7 +94,13 @@ func (pv *enclosureCanisterProvider) Run(logger *slog.Logger) {
 		}
 
 		for _, v := range data {
-			observer.ObserveFloat64(observableMap["status"], v.Status.Enum(), clientAttrs)
+			additionalAttrs := metric.WithAttributes(
+				attribute.String("enclosure.id", v.EnclosureId),
+				attribute.String("canister.id", v.CanisterId),
+				attribute.String("node.name", v.NodeName),
+				attribute.String("canister.type", v.Type),
+			)
+			observer.ObserveFloat64(observableMap["status"], v.Status.Enum(), clientAttrs, additionalAttrs)
 		}
 
 		return nil

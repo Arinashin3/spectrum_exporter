@@ -11,7 +11,7 @@ import (
 	sdkMetric "go.opentelemetry.io/otel/sdk/metric"
 )
 
-type hostProvider struct {
+type vdiskProvider struct {
 	moduleName    string
 	interval      time.Duration
 	meterProvider *sdkMetric.MeterProvider
@@ -19,16 +19,16 @@ type hostProvider struct {
 }
 
 func init() {
-	moduleName := "host"
-	registProvider(moduleName, &hostProvider{moduleName: moduleName})
+	moduleName := "vdisk"
+	registProvider(moduleName, &vdiskProvider{moduleName: moduleName})
 }
 
-func (pv *hostProvider) IsDefaultEnabled() bool {
+func (pv *vdiskProvider) IsDefaultEnabled() bool {
 	return true
 }
 
-func (pv *hostProvider) NewProvider(cfg *config.SpectrumConfig, moduleName string, cl *ClientDesc) Provider {
-	pvConf := cfg.Providers.Host
+func (pv *vdiskProvider) NewProvider(cfg *config.SpectrumConfig, moduleName string, cl *ClientDesc) Provider {
+	pvConf := cfg.Providers.Vdisk
 	enabled := pvConf.GetEnabled(pv.IsDefaultEnabled())
 	interval := pvConf.GetInterval()
 
@@ -39,7 +39,7 @@ func (pv *hostProvider) NewProvider(cfg *config.SpectrumConfig, moduleName strin
 		return nil
 	}
 	mp := NewMeterProvider(serviceName, interval, MetricExporter)
-	return &hostProvider{
+	return &vdiskProvider{
 		moduleName:    moduleName,
 		interval:      interval,
 		meterProvider: mp,
@@ -47,42 +47,35 @@ func (pv *hostProvider) NewProvider(cfg *config.SpectrumConfig, moduleName strin
 	}
 }
 
-var HostMetricDescs = []*MetricDescriptor{
+var VDiskMetricDescs = []*MetricDescriptor{
 	{
 		Key:      "status",
-		Name:     "spectrum_host_status",
-		Desc:     "Information about the host",
+		Name:     "spectrum_vdisk_status",
+		Desc:     "Information about the vdisk",
 		Unit:     "",
 		TypeName: "gauge",
 	},
 	{
-		Key:      "port_count",
-		Name:     "spectrum_host_port_count",
-		Desc:     "Information about the host",
-		Unit:     "",
-		TypeName: "gauge",
-	},
-	{
-		Key:      "iogrp_count",
-		Name:     "spectrum_host_iogrp_count",
-		Desc:     "Information about the host",
-		Unit:     "",
+		Key:      "capacity",
+		Name:     "spectrum_vdisk_capacity",
+		Desc:     "Information about the vdisk",
+		Unit:     "mb",
 		TypeName: "gauge",
 	},
 }
 
-func (pv *hostProvider) Run(logger *slog.Logger) {
+func (pv *vdiskProvider) Run(logger *slog.Logger) {
 	logger.Info("Starting provider", "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 	meter := pv.meterProvider.Meter(pv.moduleName)
 
 	// Register Metrics...
 	var observableMap map[string]metric.Float64Observable
-	observableMap = CreateMapMetricDescriptor(meter, HostMetricDescs, logger)
+	observableMap = CreateMapMetricDescriptor(meter, VDiskMetricDescs, logger)
 
 	// Register Metrics for Observables...
-	var observableHost []metric.Observable
+	var observableVDisk []metric.Observable
 	for _, observable := range observableMap {
-		observableHost = append(observableHost, observable)
+		observableVDisk = append(observableVDisk, observable)
 	}
 
 	// ==============================
@@ -97,7 +90,7 @@ func (pv *hostProvider) Run(logger *slog.Logger) {
 		if !c.HealthCheck() {
 			return nil
 		}
-		data, err := c.GetHost()
+		data, err := c.GetVDisk()
 		if err != nil {
 			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
 			return nil
@@ -108,18 +101,17 @@ func (pv *hostProvider) Run(logger *slog.Logger) {
 		}
 
 		for _, v := range data {
-			// Host Attributes...
+			// VDisk Attributes...
 			additionalAttrs := metric.WithAttributes(
-				attribute.String("target.id", v.Id),
-				attribute.String("target.name", v.Name),
-				attribute.String("protocol", v.Protocol),
+				attribute.String("vdisk.id", v.Id),
+				attribute.String("vdisk.name", v.Name),
+				attribute.String("vdisk.type", v.Type),
 			)
 			observer.ObserveFloat64(observableMap["status"], v.Status.Enum(), clientAttrs, additionalAttrs)
-			observer.ObserveFloat64(observableMap["port_count"], v.PortCount.Float(), clientAttrs, additionalAttrs)
-			observer.ObserveFloat64(observableMap["iogrp_count"], v.IogrpCount.Float(), clientAttrs, additionalAttrs)
+			observer.ObserveFloat64(observableMap["capacity"], v.Capacity.Bytes().ToMiB(), clientAttrs, additionalAttrs)
 		}
 
 		return nil
-	}, observableHost...)
+	}, observableVDisk...)
 
 }
