@@ -34,9 +34,9 @@ type VDiskInstance struct {
 	Protocol            string       `json:"protocol,omitempty"`
 }
 
-func (_c *SpectrumClient) GetVDisk() ([]*VDiskInstance, error) {
+func (_c *Client) GetVDisk() ([]*VDiskInstance, error) {
 
-	req, err := _c.newRequest(api.SpectrumAPILsVDisk, nil)
+	req, err := _c.newRequest(api.SpectrumCommandLsVDisk.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (_c *SpectrumClient) GetVDisk() ([]*VDiskInstance, error) {
 		return nil, err
 	}
 	var data []*VDiskInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 
 	return data, err
 }

@@ -50,9 +50,9 @@ type eventlogProvider struct {
 }
 
 func (pv *eventlogProvider) Run(logger *slog.Logger) {
-	logger.Info("Starting provider", "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
+	c := pv.clientDesc.client
+	logger.Info("Starting provider", "endpoint", c.Endpoint(), "provider", pv.moduleName)
 	ctx := context.Background()
-	cl := pv.clientDesc.client
 	lp := pv.loggerProvider
 
 	// Create And Set Options...
@@ -60,7 +60,7 @@ func (pv *eventlogProvider) Run(logger *slog.Logger) {
 	ctime := time.Now().Add(-1 * time.Hour).UTC()
 
 	for {
-		if !cl.HealthCheck() {
+		if !c.IsLogin() {
 			time.Sleep(pv.interval)
 			continue
 		}
@@ -68,7 +68,7 @@ func (pv *eventlogProvider) Run(logger *slog.Logger) {
 
 		opts.AddFilterValue("last_timestamp>=" + ctime.Format(types.TimeLayout))
 
-		data, err := cl.GetEventLog(opts)
+		data, err := c.GetEventLog(opts)
 		if err != nil {
 			time.Sleep(pv.interval)
 			continue

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"net/http"
 	"spectrum_exporter/config"
 	"spectrum_exporter/gospectrum"
 	"strconv"
@@ -24,6 +25,7 @@ const serviceName = "spectrum_exporter"
 
 var (
 	UsableProviders = make(map[string]Provider)
+	Transport       = make(map[bool]*http.Transport)
 	Providers       []Provider
 	MetricExporter  *sdkMetric.Exporter
 	LogExporter     *sdkLog.Exporter
@@ -173,6 +175,10 @@ func RegistryProviders(cfg *config.SpectrumConfig, logger *slog.Logger) bool {
 		}
 	}
 
+	// Create Transport
+	Transport[true] = gospectrum.NewTransport(true)
+	Transport[false] = gospectrum.NewTransport(false)
+
 	for _, clientConf := range cfg.Clients {
 		var endpoint string
 		var customLabels []attribute.KeyValue
@@ -188,14 +194,17 @@ func RegistryProviders(cfg *config.SpectrumConfig, logger *slog.Logger) bool {
 			success = false
 		}
 		insecure, _ = strconv.ParseBool(clientConf.Insecure)
-		cm := gospectrum.NewClient(endpoint, username, password, insecure)
+		cm, err := gospectrum.NewClient(endpoint, username, password, Transport[insecure])
+		if err != nil {
+			return false
+		}
 
 		cl := &ClientDesc{
-			endpoint:     endpoint,
+			client:       cm,
 			customLabels: customLabels,
 			hostLabels:   nil,
-			client:       cm,
 		}
+		cl.client.Login()
 		_ = UpdateAttributes(cl)
 
 		for k, pv := range UsableProviders {
@@ -218,28 +227,21 @@ func RunProviders(logger *slog.Logger) {
 func UpdateAttributes(cl *ClientDesc) error {
 	var tmp []attribute.KeyValue
 	tmp = cl.customLabels
-	tmp = append(tmp, attribute.String("instance", cl.endpoint))
-	cl.hostLabels = tmp
-	err := cl.client.Login()
-	if err != nil {
-		return err
-	}
+	tmp = append(tmp, attribute.String("instance", cl.client.Endpoint()))
+
 	data, err := cl.client.GetSystem()
-	if err != nil {
-		return err
+	if data != nil {
+		tmp = append(tmp, attribute.String("host.name", data.Name))
+		cl.hostLabels = tmp
 	}
 
-	tmp = append(tmp, attribute.String("host.name", data.Name))
-	cl.hostLabels = tmp
-
-	return nil
+	return err
 }
 
 type ClientDesc struct {
-	endpoint     string
 	customLabels []attribute.KeyValue
 	hostLabels   []attribute.KeyValue
-	client       *gospectrum.SpectrumClient
+	client       *gospectrum.Client
 }
 
 type Provider interface {

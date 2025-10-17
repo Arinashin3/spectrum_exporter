@@ -65,13 +65,13 @@ func (_opts *EventLogOptions) SetFixed(b bool) {
 	*_opts.Fixed = b
 }
 
-func (_c *SpectrumClient) GetEventLog(opts *EventLogOptions) ([]*EventLogInstance, error) {
+func (_c *Client) GetEventLog(opts *EventLogOptions) ([]*EventLogInstance, error) {
 	reqBody, err := json.Marshal(opts)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := _c.newRequest(api.SpectrumAPILsEventLog, reqBody)
+	req, err := _c.newRequest(api.SpectrumCommandLsEventLog.String(""), reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (_c *SpectrumClient) GetEventLog(opts *EventLogOptions) ([]*EventLogInstanc
 		return nil, err
 	}
 	var data []*EventLogInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 
 	return data, err
 }

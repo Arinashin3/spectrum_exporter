@@ -58,7 +58,8 @@ var EnclosureCanisterMetricDescs = []*MetricDescriptor{
 }
 
 func (pv *enclosureCanisterProvider) Run(logger *slog.Logger) {
-	logger.Info("Starting provider", "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
+	c := pv.clientDesc.client
+	logger.Info("Starting provider", "endpoint", c.Endpoint(), "provider", pv.moduleName)
 	meter := pv.meterProvider.Meter(pv.moduleName)
 
 	// Register Metrics...
@@ -79,17 +80,16 @@ func (pv *enclosureCanisterProvider) Run(logger *slog.Logger) {
 		clientAttrs := metric.WithAttributes(pv.clientDesc.hostLabels...)
 
 		// Request Data
-		c := pv.clientDesc.client
-		if !c.HealthCheck() {
+		if !c.IsLogin() {
 			return nil
 		}
-		data, err := c.GetEnclosureCanister()
+		data, err := c.GetEnclosureCanisterSummary("")
 		if err != nil {
-			logger.Error("Failed to post", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
+			logger.Error("Failed to post", "err", err, "endpoint", c.Endpoint(), "provider", pv.moduleName)
 			return nil
 		}
 		if data == nil {
-			logger.Warn("data is nil", "provider", pv.moduleName, "endpoint", pv.clientDesc.endpoint)
+			logger.Warn("data is nil", "provider", pv.moduleName, "endpoint", c.Endpoint())
 			return nil
 		}
 

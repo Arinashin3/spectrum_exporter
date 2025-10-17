@@ -45,8 +45,8 @@ type DriveInstance struct {
 	DateOfManufacture       types.Timestamp `json:"date_of_manufacture,omitempty"`
 }
 
-func (_c *SpectrumClient) GetDrive() ([]*DriveInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsDrive, nil)
+func (_c *Client) GetDrive() ([]*DriveInstance, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsDrive.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (_c *SpectrumClient) GetDrive() ([]*DriveInstance, error) {
 		return nil, err
 	}
 	var data []*DriveInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 
 	return data, err
 }

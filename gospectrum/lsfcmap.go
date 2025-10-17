@@ -27,8 +27,8 @@ type FlashCopyMapInstance struct {
 	RcControlled    types.Bool            `json:"rc_controlled,omitempty"`
 }
 
-func (_c *SpectrumClient) GetFlashCopyMap() ([]*FlashCopyMapInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsFcMap, nil)
+func (_c *Client) GetFlashCopyMap() ([]*FlashCopyMapInstance, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsFcMap.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (_c *SpectrumClient) GetFlashCopyMap() ([]*FlashCopyMapInstance, error) {
 		return nil, nil
 	}
 	var data []*FlashCopyMapInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 	if err != nil {
 		return nil, err
 	}

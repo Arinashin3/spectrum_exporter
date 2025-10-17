@@ -19,8 +19,8 @@ type NodeCanisterInstance struct {
 	CanisterId  string       `json:"canister_id,omitempty"`
 }
 
-func (_c *SpectrumClient) GetNodeCanister() ([]*NodeCanisterInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsNodeCanister, nil)
+func (_c *Client) GetNodeCanister() ([]*NodeCanisterInstance, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsNodeCanister.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (_c *SpectrumClient) GetNodeCanister() ([]*NodeCanisterInstance, error) {
 		return nil, err
 	}
 	var data []*NodeCanisterInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 	if err != nil {
 		return nil, err
 	}

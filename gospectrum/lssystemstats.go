@@ -18,7 +18,7 @@ type SystemStatsOptions struct {
 	Filtervalue string `json:"filtervalue"`
 }
 
-func (_c *SpectrumClient) GetSystemStats(filterValues []string) ([]*SystemStatsInstance, error) {
+func (_c *Client) GetSystemStats(filterValues []string) ([]*SystemStatsInstance, error) {
 
 	// Parse Body
 	var reqBody []byte
@@ -33,7 +33,7 @@ func (_c *SpectrumClient) GetSystemStats(filterValues []string) ([]*SystemStatsI
 	}
 
 	// Create Request
-	req, err := _c.newRequest(api.SpectrumAPILsSystemStats, reqBody)
+	req, err := _c.newRequest(api.SpectrumCommandLsSystemStats.String(""), reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (_c *SpectrumClient) GetSystemStats(filterValues []string) ([]*SystemStatsI
 		return nil, err
 	}
 	var data []*SystemStatsInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 	if err != nil {
 		return nil, err
 	}

@@ -16,17 +16,17 @@ type HostInstance struct {
 	Protocol   string       `json:"protocol"`
 }
 
-func (_c *SpectrumClient) GetHost() ([]*HostInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsHost, nil)
+func (_c *Client) GetHost() ([]*HostInstance, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsHost.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
-	body, err := _c.send(req)
+	resp, err := _c.send(req)
 	if err != nil {
 		return nil, err
 	}
 	var data []*HostInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(resp.Body, &data)
 
 	return data, err
 }

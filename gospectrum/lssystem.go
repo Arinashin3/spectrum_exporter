@@ -47,10 +47,11 @@ type SystemInstance struct {
 	DeduplicationCapacitySaving     types.IEC    `json:"deduplication_capacity_saving,omitempty"`
 }
 
-func (_c *SpectrumClient) GetSystem() (*SystemInstance, error) {
+// GetSystem function is same with 'lssystem' command.
+func (_c *Client) GetSystem() (*SystemInstance, error) {
 
 	var data *SystemInstance
-	req, err := _c.newRequest(api.SpectrumAPILsSystem, nil)
+	req, err := _c.newRequest(api.SpectrumCommandLsSystem.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func (_c *SpectrumClient) GetSystem() (*SystemInstance, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 
 	return data, err
 }

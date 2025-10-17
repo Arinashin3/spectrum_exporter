@@ -20,8 +20,8 @@ type HostVdiskMapInstance struct {
 	Protocol        string `json:"protocol,omitempty"`
 }
 
-func (_c *SpectrumClient) GetHostVdiskMap() ([]*HostVdiskMapInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsHostVDiskMap, nil)
+func (_c *Client) GetHostVdiskMap() ([]*HostVdiskMapInstance, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsHostVDiskMap.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (_c *SpectrumClient) GetHostVdiskMap() ([]*HostVdiskMapInstance, error) {
 		return nil, err
 	}
 	var data []*HostVdiskMapInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 
 	return data, err
 }

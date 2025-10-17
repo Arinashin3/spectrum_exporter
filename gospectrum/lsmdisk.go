@@ -22,8 +22,8 @@ type MDiskInstance struct {
 	SupportsUnmap   types.Bool   `json:"supports_unmap,omitempty"`
 }
 
-func (_c *SpectrumClient) GetMDisk() ([]*MDiskInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsMDisk, nil)
+func (_c *Client) GetMDisk() ([]*MDiskInstance, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsMDisk.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -32,7 +32,7 @@ func (_c *SpectrumClient) GetMDisk() ([]*MDiskInstance, error) {
 		return nil, err
 	}
 	var data []*MDiskInstance
-	err = json.Unmarshal(body, &data)
+	err = json.Unmarshal(body.Body, &data)
 	if err != nil {
 		return nil, err
 	}

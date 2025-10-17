@@ -6,7 +6,7 @@ import (
 	"spectrum_exporter/gospectrum/types"
 )
 
-type ArrayInstance struct {
+type ArraySummary struct {
 	MdiskId      string          `json:"mdisk_id,omitempty"`
 	MdiskName    string          `json:"mdisk_name,omitempty"`
 	Status       types.Status    `json:"status,omitempty"`
@@ -22,8 +22,15 @@ type ArrayInstance struct {
 	Distributed  types.Bool      `json:"distributed,omitempty"`
 }
 
-func (_c *SpectrumClient) GetArray() ([]*ArrayInstance, error) {
-	req, err := _c.newRequest(api.SpectrumAPILsArray, nil)
+// GetArraySummary function is same with **lsarray** command.
+//
+// default is to get summary of all arrays.
+// when you put **enclosureId**, can get array's summary of selected enclosure.
+//
+// if you want to get array's detail,
+// you can use <GetArrayDetail> function.
+func (_c *Client) GetArraySummary() ([]*ArraySummary, error) {
+	req, err := _c.newRequest(api.SpectrumCommandLsArray.String(""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -31,8 +38,8 @@ func (_c *SpectrumClient) GetArray() ([]*ArrayInstance, error) {
 	if err != nil {
 		return nil, err
 	}
-	var data []*ArrayInstance
-	err = json.Unmarshal(body, &data)
+	var data []*ArraySummary
+	err = json.Unmarshal(body.Body, &data)
 
 	return data, err
 }

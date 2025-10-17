@@ -1,40 +1,29 @@
 package api
 
-import (
-	"bytes"
-	"net/http"
-)
-
-type SpectrumAPIPath string
+type SpectrumCommand string
 
 const (
-	SpectrumAPIPrefix                              = "/rest"
-	SpectrumAPIAuth                SpectrumAPIPath = SpectrumAPIPrefix + "/auth"
-	SpectrumAPILsEventLog          SpectrumAPIPath = SpectrumAPIPrefix + "/lseventlog"
-	SpectrumAPILsFcMap             SpectrumAPIPath = SpectrumAPIPrefix + "/lsfcmap"
-	SpectrumAPILsSystem            SpectrumAPIPath = SpectrumAPIPrefix + "/lssystem"
-	SpectrumAPILsSystemStats       SpectrumAPIPath = SpectrumAPIPrefix + "/lssystemstats"
-	SpectrumAPILsEnclosure         SpectrumAPIPath = SpectrumAPIPrefix + "/lsenclosure"
-	SpectrumAPILsEnclosureCanister SpectrumAPIPath = SpectrumAPIPrefix + "/lsenclosurecanister"
-	SpectrumAPILsNodeCanister      SpectrumAPIPath = SpectrumAPIPrefix + "/lsnodecanister"
-	SpectrumAPILsMDisk             SpectrumAPIPath = SpectrumAPIPrefix + "/lsmdisk"
-	SpectrumAPILsVDisk             SpectrumAPIPath = SpectrumAPIPrefix + "/lsvdisk"
-	SpectrumAPILsArray             SpectrumAPIPath = SpectrumAPIPrefix + "/lsarray"
-	SpectrumAPILsDrive             SpectrumAPIPath = SpectrumAPIPrefix + "/lsdrive"
-	SpectrumAPILsHost              SpectrumAPIPath = SpectrumAPIPrefix + "/lshost"
-	SpectrumAPILsHostVDiskMap      SpectrumAPIPath = SpectrumAPIPrefix + "/lshostvdiskmap"
+	SpectrumAPIPrefix                                  = "/rest"
+	SpectrumCommandAuth                SpectrumCommand = "auth"
+	SpectrumCommandLsEventLog          SpectrumCommand = "lseventlog"
+	SpectrumCommandLsFcMap             SpectrumCommand = "lsfcmap"
+	SpectrumCommandLsSystem            SpectrumCommand = "lssystem"
+	SpectrumCommandLsSystemStats       SpectrumCommand = "lssystemstats"
+	SpectrumCommandLsEnclosure         SpectrumCommand = "lsenclosure"
+	SpectrumCommandLsEnclosureCanister SpectrumCommand = "lsenclosurecanister"
+	SpectrumCommandLsNodeCanister      SpectrumCommand = "lsnodecanister"
+	SpectrumCommandLsMDisk             SpectrumCommand = "lsmdisk"
+	SpectrumCommandLsVDisk             SpectrumCommand = "lsvdisk"
+	SpectrumCommandLsArray             SpectrumCommand = "lsarray"
+	SpectrumCommandLsDrive             SpectrumCommand = "lsdrive"
+	SpectrumCommandLsHost              SpectrumCommand = "lshost"
+	SpectrumCommandLsHostVDiskMap      SpectrumCommand = "lshostvdiskmap"
 )
 
-func (_api SpectrumAPIPath) NewRequest(endpoint string, body []byte) (*http.Request, error) {
-	req, err := http.NewRequest("POST", string(_api), bytes.NewBuffer(body))
-	if err != nil {
-		return nil, err
+func (_command SpectrumCommand) String(id string) string {
+	if id == "" {
+		return SpectrumAPIPrefix + "/" + string(_command)
+	} else {
+		return SpectrumAPIPrefix + "/" + string(_command) + "/" + id
 	}
-	req.URL, err = req.URL.Parse(endpoint + string(_api))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	return req, nil
 }

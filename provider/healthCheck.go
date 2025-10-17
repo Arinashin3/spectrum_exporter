@@ -51,7 +51,8 @@ var HealthCheckMetricDescs = []*MetricDescriptor{
 }
 
 func (pv *healthCheckProvider) Run(logger *slog.Logger) {
-	logger.Info("Starting provider", "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
+	c := pv.clientDesc.client
+	logger.Debug("Starting provider", "endpoint", c.Endpoint(), "provider", pv.moduleName)
 	meter := pv.meterProvider.Meter(pv.moduleName)
 
 	// Register Metrics...
@@ -72,12 +73,13 @@ func (pv *healthCheckProvider) Run(logger *slog.Logger) {
 		clientAttrs := metric.WithAttributes(pv.clientDesc.hostLabels...)
 
 		// Request Data
-		c := pv.clientDesc.client
-		err := c.Login()
+		check, err := c.Login()
 		if err != nil {
-			logger.Warn("Failed to login", "err", err, "endpoint", pv.clientDesc.endpoint, "provider", pv.moduleName)
+			logger.Warn("Failed to login", "err", err, "endpoint", c.Endpoint(), "provider", pv.moduleName)
 		}
-		result := c.HealthCheck()
+		if check {
+		}
+		result := c.IsLogin()
 		var f float64
 		if result {
 			_ = UpdateAttributes(pv.clientDesc)
